@@ -60989,9 +60989,9 @@
     "dx_lev_mas_notes_touch": "35",
     "dx_lev_mas_designer": "はっぴー",
     "wiki_url": "https://gamerch.com/maimai/882166",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241108",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250424",
     "date": "NEW"
   },
   {
@@ -61039,9 +61039,9 @@
     "dx_lev_mas_notes_touch": "21",
     "dx_lev_mas_designer": "Jack",
     "wiki_url": "https://gamerch.com/maimai/882169",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241108",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250424",
     "date": "NEW"
   },
   {
@@ -61098,9 +61098,9 @@
     "dx_lev_remas_notes_touch": "4",
     "dx_lev_remas_designer": "Luxizhel",
     "wiki_url": "https://gamerch.com/maimai/882133",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241108",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250424",
     "date": "NEW"
   },
   {
@@ -61157,9 +61157,9 @@
     "dx_lev_remas_notes_touch": "15",
     "dx_lev_remas_designer": "サファ太",
     "wiki_url": "https://gamerch.com/maimai/882161",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241108",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250424",
     "date": "NEW"
   },
   {
@@ -61515,9 +61515,9 @@
     "dx_lev_mas_notes_touch": "113",
     "dx_lev_mas_designer": "はっぴー",
     "wiki_url": "https://gamerch.com/maimai/889150",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241206",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250509",
     "date": "NEW"
   },
   {
@@ -61565,9 +61565,9 @@
     "kanji": "嘘",
     "comment": "嘘に踊れ",
     "wiki_url": "https://gamerch.com/maimai/852034",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241206",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250509",
     "lev_utage_notes_touch": "0"
   },
   {
@@ -61615,9 +61615,9 @@
     "dx_lev_mas_notes_touch": "9",
     "dx_lev_mas_designer": "Luxizhel",
     "wiki_url": "https://gamerch.com/maimai/888996",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241206",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250509",
     "date": "NEW"
   },
   {
@@ -61665,9 +61665,9 @@
     "dx_lev_mas_notes_touch": "39",
     "dx_lev_mas_designer": "サファ太",
     "wiki_url": "https://gamerch.com/maimai/889153",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241206",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250509",
     "date": "NEW"
   },
   {
@@ -61715,9 +61715,9 @@
     "dx_lev_mas_notes_touch": "9",
     "dx_lev_mas_designer": "Jack",
     "wiki_url": "https://gamerch.com/maimai/888998",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241206",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250509",
     "date": "NEW"
   },
   {
@@ -61765,9 +61765,9 @@
     "dx_lev_mas_notes_touch": "29",
     "dx_lev_mas_designer": "鳩ホルダー",
     "wiki_url": "https://gamerch.com/maimai/889147",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241206",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250509",
     "date": "NEW"
   },
   {
@@ -61865,10 +61865,11 @@
     "dx_lev_mas_notes_touch": "64",
     "dx_lev_mas_designer": "Luxizhel",
     "wiki_url": "https://gamerch.com/maimai/893952",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241220",
-    "date_intl_added": "000000",
-    "date": "NEW"
+    "date_intl_added": "20250411",
+    "date": "NEW",
+    "key_intl": "○"
   },
   {
     "sort": "836",
@@ -61915,10 +61916,11 @@
     "dx_lev_mas_notes_touch": "62",
     "dx_lev_mas_designer": "Jack",
     "wiki_url": "https://gamerch.com/maimai/893950",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20241220",
-    "date_intl_added": "000000",
-    "date": "NEW"
+    "date_intl_added": "20250411",
+    "date": "NEW",
+    "key_intl": "○"
   },
   {
     "sort": "838",
@@ -61965,10 +61967,10 @@
     "dx_lev_mas_notes_touch": "132",
     "dx_lev_mas_designer": "BLaCK rOSE dIsEASe pATENT",
     "wiki_url": "https://gamerch.com/maimai/893303",
-    "intl": "0",
+    "intl": "1",
     "key": "○",
     "date_added": "20241220",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250411",
     "date": "NEW"
   },
   {
