@@ -62500,11 +62500,12 @@
     "dx_lev_mas_notes_touch": "47",
     "dx_lev_mas_designer": "サファ太",
     "wiki_url": "https://gamerch.com/maimai/902883",
-    "intl": "0",
+    "intl": "1",
     "key": "○",
     "date_added": "20250207",
-    "date_intl_added": "000000",
-    "date": "NEW"
+    "date_intl_added": "20250620",
+    "date": "NEW",
+    "key_intl": "○"
   },
   {
     "sort": "1210",
@@ -62551,9 +62552,9 @@
     "dx_lev_mas_notes_touch": "114",
     "dx_lev_mas_designer": "ロシェ＠ペンギン と はっぴー",
     "wiki_url": "https://gamerch.com/maimai/902875",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20250207",
-    "date_intl_added": "000000",
+    "date_intl_added": "20250620",
     "date": "NEW"
   },
   {
@@ -62601,11 +62602,12 @@
     "dx_lev_mas_notes_touch": "22",
     "dx_lev_mas_designer": "メロンポップ vs Luxizhel",
     "wiki_url": "https://gamerch.com/maimai/902884",
-    "intl": "0",
+    "intl": "1",
     "key": "○",
     "date_added": "20250207",
-    "date_intl_added": "000000",
-    "date": "NEW"
+    "date_intl_added": "20250620",
+    "date": "NEW",
+    "key_intl": "○"
   },
   {
     "sort": "1211",
@@ -62652,10 +62654,11 @@
     "dx_lev_mas_notes_touch": "64",
     "dx_lev_mas_designer": "りんご Full Set",
     "wiki_url": "https://gamerch.com/maimai/902881",
-    "intl": "0",
+    "intl": "1",
     "date_added": "20250207",
-    "date_intl_added": "000000",
-    "date": "NEW"
+    "date_intl_added": "20250620",
+    "date": "NEW",
+    "key_intl": "○"
   },
   {
     "sort": "598",
