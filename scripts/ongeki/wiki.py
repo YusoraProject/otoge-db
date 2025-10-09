@@ -11,6 +11,7 @@ from functools import reduce
 from bs4 import BeautifulSoup
 
 wiki_base_url = 'https://wikiwiki.jp/gameongeki/'
+SDVXIN_BASE_URL = 'https://sdvx.in/'
 
 request_headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0',
@@ -19,10 +20,23 @@ request_headers = {
 
 TARGET_KEYS = [
     "bpm",
-    "enemy_lv",
-    "enemy_type",
-    "_notes",
-    "_designer"
+    "lev_bas_notes",
+    "lev_bas_bells",
+    "lev_adv_notes",
+    "lev_adv_bells",
+    "lev_exc_notes",
+    "lev_exc_bells",
+    "lev_mas_notes",
+    "lev_mas_bells",
+    "_exp_designer",
+    "_mas_designer"
+]
+
+TARGET_KEYS_LNT = [
+    "bpm",
+    "lev_lnt_notes",
+    "lev_lnt_bells",
+    "_lnt_designer",
 ]
 
 # Update on top of existing music-ex
@@ -43,13 +57,9 @@ def update_songs_extra_data():
     for song in target_song_list:
         update_song_wiki_data(song, total_diffs)
 
-        # Sort the song dictionary before saving
-        sorted_song = sort_dict_keys(song)
-        song.clear()  # Clear the original song dictionary
-        song.update(sorted_song)
+        _fetch_designer_info_from_sdvxin(song, total_diffs)
 
-        with open(LOCAL_MUSIC_EX_JSON_PATH, 'w', encoding='utf-8') as f:
-            json.dump(local_music_ex_data, f, ensure_ascii=False, indent=2)
+    sort_and_save_json(local_music_ex_data, LOCAL_MUSIC_EX_JSON_PATH)
 
     if total_diffs[0] == 0:
         print_message("(Nothing updated)", bcolors.ENDC, log=True)
@@ -73,7 +83,20 @@ def update_song_wiki_data(song, total_diffs):
     if 'wikiwiki_url' in song and song['wikiwiki_url']:
         if game.ARGS.noskip:
             # Check if any values are empty
-            if any(value == "" for key, value in song.items() if any(target in key for target in TARGET_KEYS)) or game.ARGS.overwrite:
+            if (
+                any(
+                    value == ""
+                    for key, value in song.items()
+                    if any(
+                        target in key
+                        for target in (
+                            TARGET_KEYS_LNT if song.get("lunatic", "") != ""
+                            else TARGET_KEYS
+                        )
+                    )
+                )
+                or game.ARGS.overwrite
+            ):
                 url = song['wikiwiki_url']
                 try:
                     wiki = requests.get(url, timeout=5, headers=request_headers, allow_redirects=True)
@@ -172,7 +195,7 @@ def _parse_wikiwiki(song, wiki, url, total_diffs, header_printed):
             enemy_name = enemy_info[0]
             enemy_lv = enemy_info[1]
 
-            if enemy_lv and not enemy_lv == '○':
+            if enemy_lv and enemy_lv.isdigit():
                 diff_count = [0]
                 update_song_key(song, 'enemy_lv', enemy_lv, diff_count=diff_count)
 
@@ -285,3 +308,85 @@ def _update_song_chart_details(song, chart_dict, chart, header_printed):
     if designer_diff_count[0] > 0:
         lazy_print_song_header(f"{song['id']} {song['title']}", header_printed, log=True)
         print_message(f"Added chart designer for {chart.upper()}", bcolors.OKGREEN)
+
+
+def _fetch_designer_info_from_sdvxin(song, total_diffs):
+    """
+    Update song dict with missing designer info by scraping sdvx.in chart pages.
+    Only works for lev_exc, lev_mas, lev_lnt based on song type and current designer info.
+    """
+    chart_map = {
+        'lev_exc': 'E',
+        'lev_mas': 'M',
+        'lev_lnt': 'L',
+    }
+
+    # Determine target charts
+    is_lunatic = song.get('lunatic') == '1'
+    if is_lunatic:
+        target_charts = ['lev_lnt']
+    else:
+        target_charts = ['lev_exc', 'lev_mas']
+
+    for chart in target_charts:
+        designer_key = f"{chart}_designer"
+        chart_link_key = f"{chart}_chart_link"
+
+        # Skip if already has designer info or no chart link
+        if song.get(designer_key):
+            continue
+
+        print_message(f"Fetch missing designer info for {chart.upper()} from sdvx.in", bcolors.OKBLUE, is_verbose=True)
+
+        chart_link = song.get(chart_link_key)
+        if not chart_link:
+            print_message(f"Skipping: there is no chart link", bcolors.ENDC, is_verbose=True)
+            continue
+
+        # Extract version number and song ID
+        match = re.match(r'(\d{2})/(\d{5})[a-z]{3}', chart_link)
+        if not match:
+            print_message(f"Parsing ID from chart link failed", bcolors.FAIL, is_verbose=True)
+            continue  # invalid format
+        version_num, song_id = match.groups()
+
+        # Construct URL
+        url = f"{SDVXIN_BASE_URL}{game.GAME_NAME}/{version_num}/js/{song_id}sort.js"
+
+        try:
+            resp = requests.get(url)
+            resp.encoding = 'ansi'
+            content = resp.text
+        except Exception:
+            print_message(f"Failed to load page", bcolors.FAIL)
+            continue  # skip on any error
+
+        # Check validity
+        lines = content.strip().splitlines()
+        lines = [line.lstrip('\ufeff') for line in lines]
+
+        # Validate that expected declarations are present anywhere in the first 10 lines
+        head = lines[:10]
+        has_title = any(re.match(r'^var TITLE\d+ *=', line) for line in head)
+        has_artist = any(re.match(r'^var ARTIST\d+ *=', line) for line in head)
+        has_bpm = any(re.match(r'^var BPM\d+ *=', line) for line in head)
+        has_cr = any(re.match(rf'^var CR{song_id}', line) for line in head)
+
+        # ipdb.set_trace()
+
+        if not (has_title and has_artist and has_bpm and has_cr):
+            continue
+
+        # Parse designer info
+        suffix = chart_map[chart]
+        cr_key = f"var CR{song_id}{suffix}"
+        for line in lines:
+            if line.startswith(cr_key):
+                # Extract designer name
+                m = re.search(r'NOTES DESIGNER / ([^<]+)</table>', line)
+                if m:
+                    song[designer_key] = m.group(1).strip()
+                    print_message(f"Added chart designer for {chart.upper()}: {song[designer_key]}", bcolors.OKGREEN)
+                    total_diffs[0] += 1
+                break  # stop after finding the correct one
+

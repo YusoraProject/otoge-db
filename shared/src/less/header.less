@@ -46,7 +46,7 @@
 
 header {
 	position: relative;
-	background-image: 
+	background-image:
 		linear-gradient(
 			45deg,
 			rgba(var(--header-gradient-stop-01),0.2) 0%,
@@ -170,7 +170,7 @@ header {
 			right: 1px;
 			left: -3px;
 			bottom: 0;
-			background-image: 
+			background-image:
 				linear-gradient(
 					to bottom,
 					rgba(var(--color-accent-01),1) 0%,
@@ -296,7 +296,24 @@ header {
 		padding: 5px 0 5px 0;
 
 		@media screen and (min-width: 480px) {
-			width: 6em;
+			width: 7em;
+		}
+
+		@media screen and (min-width: 640px) {
+			padding: 5px 15px 5px 0;
+			width: 12em;
+		}
+	}
+
+	div.version-date {
+		display: flex;
+		flex-flow: column;
+		align-items: center;
+		justify-content: center;
+
+		@media screen and (min-width: 640px) {
+			flex-flow: row wrap;
+			gap: 0 0.2em;
 		}
 	}
 
@@ -328,13 +345,32 @@ header {
 		}
 
 		:root[data-game-region="intl"]:not(.ongeki) & {
-			background-color: rgba(var(--color-accent-02),0.8);
+			background-color: rgba(var(--color-accent-03),0.8);
 			color: #fff;
 
 			span.text:after {
 				content: "🌏 INTL";
 			}
 		}
+	}
+
+	.version {
+		// margin-right: 10px;
+		font-size: 0.85em;
+		white-space: nowrap;
+
+		:root[data-game-region="jp"] &.intl {
+			display: none;
+		}
+
+		:root[data-game-region="intl"]:not(.ongeki) &.jp {
+			display: none;
+		}
+
+		:root.ongeki &.intl {
+			display: none;
+		}
+
 	}
 
 	.date {
@@ -480,7 +516,7 @@ header {
 	position: relative;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	box-shadow: 
+	box-shadow:
 		0 -1px 0 0 rgb(var(--ui-color-border),0.1) inset,
 		0 1px 0 0 rgb(var(--ui-color-border),0.1) inset;
 

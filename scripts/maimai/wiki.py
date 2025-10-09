@@ -55,16 +55,9 @@ def update_songs_extra_data():
 
     for song in target_song_list:
         update_song_wiki_data(song, total_diffs)
-
-        # Sort the song dictionary before saving
-        sorted_song = sort_dict_keys(song)
-        song.clear()  # Clear the original song dictionary
-        song.update(sorted_song)
-
         # time.sleep(random.randint(1,2))
 
-    with open(LOCAL_MUSIC_EX_JSON_PATH, 'w', encoding='utf-8') as f:
-        json.dump(local_music_ex_data, f, ensure_ascii=False, indent=2)
+    sort_and_save_json(local_music_ex_data, LOCAL_MUSIC_EX_JSON_PATH)
 
     if total_diffs[0] == 0:
         print_message("(Nothing updated)", bcolors.ENDC, log=True)
@@ -424,13 +417,11 @@ def _parse_wikiwiki(song, wiki, url, total_diffs, header_printed):
                 if charts_table_dx is not None and charts_table_dx == chart_designers_span.find_previous().find_previous('div', {'class':"mu__table"}).find('table'):
                     chart_designers_dict_dx = _construct_designers_dict(song, chart_designers_text, 'designer', 'dx_')
                     req_dict_count-=1
-                    break
 
                 # Check if the Std chart table is directly in front
                 if charts_table is not None and charts_table == chart_designers_span.find_previous().find_previous('div', {'class':"mu__table"}).find('table'):
                     chart_designers_dict = _construct_designers_dict(song, chart_designers_text, 'designer', '')
                     req_dict_count-=1
-                    break
 
 
 

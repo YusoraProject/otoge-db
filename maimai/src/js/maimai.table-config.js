@@ -340,7 +340,8 @@ function maimaiRenderVersionName() {
         "24000": "BUDDiES",
         "24500": "BUDDiES PLUS",
         "25000": "PRiSM",
-        "25500": "PRiSM PLUS"
+        "25500": "PRiSM PLUS",
+        "26000": "CiRCLE"
       };
 
       let closestVersion = null;
@@ -354,6 +355,33 @@ function maimaiRenderVersionName() {
       return version_list[closestVersion];
     }
   }
+}
+
+function maimaiRenderGenre() {
+  return function( row, type, set, meta ) {
+    if ( type === 'sort' || type === 'meta') {
+      const genre_list = {
+        "POPS＆アニメ": "100",
+        "niconico＆ボーカロイド": "200",
+        "東方Project": "300",
+        "ゲーム＆バラエティ": "400",
+        "maimai": "500",
+        "オンゲキ＆CHUNITHM": "600",
+        "宴会場": "999",
+      }
+      return genre_list[row.catcode];
+    } else {
+      return row.catcode
+    }
+  }
+}
+
+function extractBPM(text) {
+  const match = text.match(/([^)]+)\(([^)]+)\)/)
+  if(match) {
+    return match.slice(1).filter(v => v.trim().length <= 3)[0]
+  } else return text;
+  
 }
 
 $(document).ready(function() {
@@ -392,6 +420,7 @@ $(document).ready(function() {
               <span class="img-wrap">
                 <img src="jacket/${data}"/>
                 ${ (currentRegion === 'intl' ? row.key_intl : row.key) == '○' ? `<span class="key-icon" title="解禁必要"></span>` : ''}
+                ${ (row.long && row.long == '1') ? `<span class="long-song-badge" title="${getTranslation(userLanguage,'long')}"><span class="long-song-text">${getTranslation(userLanguage,'long')}</span></span>` : ''}
               </span>
             `;
         },
@@ -420,7 +449,7 @@ $(document).ready(function() {
           }
           // Else type detection or sorting data, return reading
           else {
-            return row.reading;
+            return row.title_kana;
           }
         },
         width: "80vw"
@@ -469,6 +498,19 @@ $(document).ready(function() {
         data: "bpm",
         defaultContent: "",
         className: "details bpm",
+        customDropdownSortSource: function (row_a, row_b) {
+          var a = extractBPM(row_a.bpm).padStart(3, '0');
+          var b = extractBPM(row_b.bpm).padStart(3, '0');
+          return a.localeCompare(b);
+        },
+        render: function ( data, type, row ) {
+          if ( type === 'display' && data ) {
+            return data;
+          }
+          else {
+            return extractBPM(row.bpm);
+          }
+        },
         searchable: false,
         visible: false
       },
@@ -505,7 +547,7 @@ $(document).ready(function() {
         // displayTitle: "ジャンル",
         displayTitle: getTranslation(userLanguage,'col_genre'),
         name: "category",
-        data: "catcode",
+        data: maimaiRenderGenre(),
         defaultContent: "",
         className: "details category",
         render: renderInWrapper(),
@@ -854,6 +896,9 @@ $(document).ready(function() {
             fade: 150
           },
         ],
+        "columnDefs": [
+          { orderSequence: ['desc','asc'], targets: '_all'}
+        ],
         "columns": columns_params,
         "searchCols": default_search,
         "createdRow": function( row, data, dataIndex, cells ) {
@@ -1118,10 +1163,18 @@ $(document).ready(function() {
         },
         "rowGroup": {
           dataSrc: function(row) {
-            if (row.date_updated) {
-              return row.date_updated;
+            if (currentRegion != 'intl') {
+              if (row.date_updated) {
+                return row.date_updated;
+              } else {
+                return row.date_added;
+              }
             } else {
-              return row.date_added;
+              if (row.date_intl_updated) {
+                return row.date_intl_updated;
+              } else {
+                return row.date_intl_added;
+              }
             }
           },
           startRender: (!flat_view && searchParams == "" )? ( function ( rows, group ) {

@@ -4,6 +4,7 @@
 	margin-top: 0.3em;
 	font-size: 0.8em;
 	color: rgb(var(--ui-color-foreground-060));
+	max-width: 400px;
 
 	@media screen and (max-width: 480px) {
 		max-height: 50px;
@@ -101,8 +102,8 @@ table#table {
 		width: auto !important;
 		min-width: 100% !important;
 
-		table.dataTable {
-
+		& > div {
+			position: absolute;
 		}
 	}
 }
@@ -224,6 +225,17 @@ table.dataTable {
 				@media screen and (max-width: 480px) {
 					width: 20px;
 					height: 20px;
+				}
+			}
+
+			.long-song-badge {
+				position: absolute;
+				top: 4px;
+				left: calc(var(--padding-size) - 6px);
+				height: 14px;
+
+				@media screen and (min-width: 480px) {
+					height: 16px;
 				}
 			}
 		}
@@ -348,14 +360,14 @@ table.dataTable {
 			@keyframes flipIn {
 				0% {
 					opacity: 0;
-					transform: rotateX(-90deg);
+					transform: scaleY(0.6);
 					transform-origin: center;
 					animation-timing-function: @easeOutCirc;
 				}
 
 				100% {
 					opacity: 1;
-					transform: rotateX(0deg);
+					transform: scaleY(1);
 					transform-origin: center;
 					animation-timing-function: ease-out;
 				}

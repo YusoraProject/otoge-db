@@ -287,6 +287,7 @@ div.dtr-modal div.dtr-modal-content {
 		}
 
 		.img-wrap {
+			position: relative;
 			flex: 0 0 auto;
 			display: inline-flex;
 			margin-bottom: 10px; 
@@ -308,11 +309,25 @@ div.dtr-modal div.dtr-modal-content {
 					height: 150px;
 				}
 			}
+
+			.long-song-badge {
+				position: absolute;
+				top: -5px;
+				left: -10px;
+				height: 20px;
+
+				@media screen and (min-width: 640px) {
+					top: -5px;
+					left: -14px;
+					height: 30px;
+				}
+			}
 		}
 
 		.content-wrap {
 			flex: 1 1 auto;
 			margin-left: 0;
+			min-width: 0;
 
 			@media screen and (min-width: 640px) {
 				margin-left: 20px;

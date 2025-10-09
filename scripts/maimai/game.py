@@ -1,7 +1,7 @@
 GAME_NAME = "maimai"
 
-CURRENT_JP_VER = "PRiSM PLUS"
-CURRENT_INTL_VER = "PRiSM"
+CURRENT_JP_VER = "CiRCLE"
+CURRENT_INTL_VER = "PRiSM PLUS"
 
 HASH_KEYS = ['image_url']
 HASH_KEYS_SP = ['title', 'lev_utage', 'kanji']
@@ -179,11 +179,26 @@ KEY_ORDER = [
     "lev_utage_notes_tap",
     "lev_utage_notes_hold",
     "lev_utage_notes_slide",
+    "lev_utage_notes_touch",
     "lev_utage_notes_break",
+    "lev_utage_left_notes",
+    "lev_utage_left_notes_tap",
+    "lev_utage_left_notes_hold",
+    "lev_utage_left_notes_slide",
+    "lev_utage_left_notes_touch",
+    "lev_utage_left_notes_break",
+    "lev_utage_right_notes",
+    "lev_utage_right_notes_tap",
+    "lev_utage_right_notes_hold",
+    "lev_utage_right_notes_slide",
+    "lev_utage_right_notes_touch",
+    "lev_utage_right_notes_break",
     "lev_utage_designer",
+    "buddy",
     "kanji",
     "comment",
     "wiki_url",
+    "long",
     "intl",
     "key",
     "key_intl",

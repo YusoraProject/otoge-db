@@ -14,9 +14,21 @@ OTOGE DBはSEGAの音ゲー「オンゲキ」「CHUNITHM」「maimaiでらっく
 
 ## Setting up dev environment
 - You'll need Python 3.x to run scripts on command line.
+- Setup virtual environment (if required)
+	```
+	python3 -m venv .venv
+	```
+- Activate venv
+	```
+	source .venv/bin/activate
+	```
 - Install requirements
 	```
 	pip install -r requirements.txt
+	```
+	or
+	```
+	pip3 install -r requirements.txt
 	```
 
 ## Run scripts

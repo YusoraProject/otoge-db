@@ -11,6 +11,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 wiki_base_url = 'https://wikiwiki.jp/chunithmwiki/'
+SDVXIN_BASE_URL = 'https://sdvx.in/'
 
 request_headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0',
@@ -94,7 +95,8 @@ VERSION_DATES = {
     "SUN+": "20230511",
     "LUMINOUS": "20231214",
     "LUMINOUS+": "20240620",
-    "VERSE": "20241212"
+    "VERSE": "20241212",
+    "X-VERSE": "20250716"
 }
 
 CHART_COLORS = {
@@ -124,13 +126,9 @@ def update_songs_extra_data():
     for song in target_song_list:
         update_song_wiki_data(song, total_diffs)
 
-        # Sort the song dictionary before saving
-        sorted_song = sort_dict_keys(song)
-        song.clear()  # Clear the original song dictionary
-        song.update(sorted_song)
+        _fetch_designer_info_from_sdvxin(song, total_diffs)
 
-    with open(LOCAL_MUSIC_EX_JSON_PATH, 'w', encoding='utf-8') as f:
-        json.dump(local_music_ex_data, f, ensure_ascii=False, indent=2)
+    sort_and_save_json(local_music_ex_data, LOCAL_MUSIC_EX_JSON_PATH)
 
     if total_diffs[0] == 0:
         print_message("(Nothing updated)", bcolors.ENDC, log=True)
@@ -341,9 +339,9 @@ def _parse_wikiwiki(song, wiki, url, total_diffs, header_printed):
                 # check if separated text includes 譜面定数 in second row
                 if '譜面定数' in chart_constant_designer[1]:
                     chart_designers_text = chart_constant_designer[0]
-                    chart_designers_dict = _construct_constant_designer_dict(song, chart_designers_text, 'designer')
+                    chart_designers_dict = _construct_constant_designer_dict(song, chart_designers_text, 'designer', header_printed)
                     chart_constants_text = chart_constant_designer[1]
-                    chart_constants_dict = _construct_constant_designer_dict(song, chart_constants_text, 'i')
+                    chart_constants_dict = _construct_constant_designer_dict(song, chart_constants_text, 'i', header_printed)
                     break
             else:
                 # Sometimes the brackets are missing the header text
@@ -358,13 +356,13 @@ def _parse_wikiwiki(song, wiki, url, total_diffs, header_printed):
 
                 if re.match(r'\d{2}\.\d', match.group(3)) is not None:
                     chart_constants_text = match.group()
-                    chart_constants_dict = _construct_constant_designer_dict(song, chart_constants_text, 'i')
+                    chart_constants_dict = _construct_constant_designer_dict(song, chart_constants_text, 'i', header_printed)
 
                     # try looking for designer bracket nearby
                     # even if it doesnt have a title
                     if re.match(r'\d{2}\.\d', match_other.group(3)) is None:
                         chart_designers_text = match_other.group()
-                        chart_designers_dict = _construct_constant_designer_dict(song, chart_designers_text, 'designer')
+                        chart_designers_dict = _construct_constant_designer_dict(song, chart_designers_text, 'designer', header_printed)
                         break
                     else:
                         break
@@ -383,7 +381,7 @@ def _parse_wikiwiki(song, wiki, url, total_diffs, header_printed):
 
                 if re.match(r'\d{2}\.\d', match.group(3)) is None:
                     chart_designers_text = chart_constant_designer_span_text
-                    chart_designers_dict = _construct_constant_designer_dict(song, chart_designers_text, 'designer')
+                    chart_designers_dict = _construct_constant_designer_dict(song, chart_designers_text, 'designer', header_printed)
                 elif match is None and song['we_kanji']:
                     # Song is WE only
                     chart_designers_text = chart_constant_designer_span_text
@@ -404,7 +402,7 @@ def _parse_wikiwiki(song, wiki, url, total_diffs, header_printed):
 
                 if re.match(r'\d{2}\.\d', match.group(3)) is not None:
                     chart_constants_text = chart_constant_designer_span_text
-                    chart_constants_dict = _construct_constant_designer_dict(song, chart_constants_text, 'i')
+                    chart_constants_dict = _construct_constant_designer_dict(song, chart_constants_text, 'i', header_printed)
                     break
         else:
             lazy_print_song_header(f"{song['id']} {song['title']}", header_printed, log=True, is_verbose=True)
@@ -562,7 +560,7 @@ def _update_song_chart_details(song, chart_dict, chart_constant_designer_dict, c
         print_message(f"Added chart designer for {chart.upper()}", bcolors.OKGREEN)
 
 
-def _construct_constant_designer_dict(song, text, key_name):
+def _construct_constant_designer_dict(song, text, key_name, header_printed):
     # Use regular expression to find content within brackets
     match = re.search(r'【(.*?)】', text)
 
@@ -585,6 +583,10 @@ def _construct_constant_designer_dict(song, text, key_name):
                 key, value = pair.split('…', 1)
             elif '...' in pair:
                 key, value = pair.split('...', 1)
+            else:
+                lazy_print_song_header(f"{song['id']} {song['title']}", header_printed, log=True, is_verbose=True)
+                print_message(f"Warning - Found designer but was discarded due to unparsable formatting ({pair})", bcolors.WARNING, log=True, is_verbose=True)
+                continue
             dictionary[key] = value
 
         # transform key names into lev_{chart} format
@@ -608,3 +610,101 @@ def _guess_version(release_date):
             closest_version = version
 
     return closest_version
+
+
+def _fetch_designer_info_from_sdvxin(song, total_diffs):
+    """
+    Update song dict with missing designer info by scraping sdvx.in chart pages.
+    Only works for lev_exp, lev_mas, lev_ult based on song type and current designer info.
+    """
+    chart_map = {
+        'lev_exp': 'E',
+        'lev_mas': 'M',
+        'lev_ult': 'U',
+        'lev_we': 'W',
+    }
+
+    # Determine target charts
+    is_we = song.get('we_kanji') != ''
+    has_ult = song.get('lev_ult') != ''
+    if is_we:
+        target_charts = ['lev_we',]
+    elif has_ult:
+        target_charts = ['lev_exp', 'lev_mas', 'lev_ult']
+    else:
+        target_charts = ['lev_exp', 'lev_mas']
+
+    for chart in target_charts:
+        designer_key = f"{chart}_designer"
+        chart_link_key = f"{chart}_chart_link"
+
+        # Skip if already has designer info or no chart link
+        if song.get(designer_key):
+            continue
+
+        print_message(f"Fetch missing designer info for {chart.upper()} from sdvx.in", bcolors.OKBLUE, is_verbose=True)
+
+        chart_link = song.get(chart_link_key)
+        if not chart_link:
+            print_message(f"Skipping: there is no chart link", bcolors.ENDC, is_verbose=True)
+            continue
+
+        # Define version and URL suffix patterns per chart
+        chart_info = {
+            'lev_we':  ('end', 'end'),
+            'lev_ult': ('ult', 'ult'),
+        }
+
+        # Determine the version prefix and expected file suffix
+        version_prefix, file_suffix = chart_info.get(chart, (r'\d{2}', 'sort'))
+
+        # Build regex pattern dynamically
+        pattern = rf'({version_prefix})/(\d{{5}})[a-z]{{3}}\d*'
+        match = re.match(pattern, chart_link)
+
+        if not match:
+            print_message(f"Parsing ID from chart link failed", bcolors.FAIL, is_verbose=True)
+            continue
+
+        version_num, song_id = match.groups()
+
+        # Construct URL
+        url = f"{SDVXIN_BASE_URL}{game.GAME_NAME}/{version_num}/js/{song_id}{file_suffix}.js"
+
+
+        try:
+            resp = requests.get(url)
+            resp.encoding = 'ansi'
+            content = resp.text
+        except Exception:
+            print_message(f"Failed to load page", bcolors.FAIL)
+            continue  # skip on any error
+
+        # Check validity
+        lines = content.strip().splitlines()
+        lines = [line.lstrip('\ufeff') for line in lines]
+
+        # Validate that expected declarations are present anywhere in the first 10 lines
+        head = lines[:10]
+        has_title = any(re.match(r'^var TITLE\d+ *=', line) for line in head)
+        has_artist = any(re.match(r'^var ARTIST\d+ *=', line) for line in head)
+        has_bpm = any(re.match(r'^var BPM\d+ *=', line) for line in head)
+        has_cr = any(re.match(rf'^var CR{song_id}', line) for line in head)
+
+        # ipdb.set_trace()
+
+        if not (has_title and has_artist and has_bpm and has_cr):
+            continue
+
+        # Parse designer info
+        suffix = chart_map[chart]
+        cr_key = f"var CR{song_id}{suffix}"
+        for line in lines:
+            if line.startswith(cr_key):
+                # Extract designer name
+                m = re.search(r'NOTES DESIGNER / ([^<]+)</table>', line)
+                if m:
+                    song[designer_key] = m.group(1).strip()
+                    print_message(f"Added chart designer for {chart.upper()}: {song[designer_key]}", bcolors.OKGREEN)
+                    total_diffs[0] += 1
+                break  # stop after finding the correct one
